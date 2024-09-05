@@ -30,7 +30,7 @@ class Procedure:
         self.env = env
 
     def __call__(self, *args: Expression) -> Any:
-        local_env = dict(zip(self.parms, args))
+        local_env: Environment = dict(zip(self.parms, args))
         env: Environment = ChainMap(local_env, self.env)
         return evaluate(self.body, env)
 
@@ -132,12 +132,20 @@ def repl(prompt: str = 'lis.py> ') -> None:
             print(lispstr(val))
 
 
-def lispstr(exp: object) -> str:
-    "Convert a Python object back into a Lisp-readable string."
-    if isinstance(exp, list):
-        return '(' + ' '.join(map(lispstr, exp)) + ')'
-    else:
-        return str(exp)
+def lispstr(obj: object) -> str:
+    """Convert Python object back to s-expression code."""
+    match obj:
+        case True:
+            return '#t'
+        case False:
+            return '#f'
+        case list(obj):
+            items = ' '.join(lispstr(x) for x in obj)
+            return f'({items})'
+        case Symbol(x):
+            return x
+        case _:
+            return repr(obj)
 
 
 ################ eval
