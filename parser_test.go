@@ -16,6 +16,11 @@ func TestParse(t *testing.T) {
 		{"(+ (* 2 100) (* 1 10))", []Expression{Symbol("+"), []Expression{Symbol("*"), 2, 100}, []Expression{Symbol("*"), 1, 10}}},
 		{"99 100", 99}, // parse stops at the first complete expression
 		{"(a)(b)", []Expression{Symbol("a")}},
+		{"{if (< x 0) 0 x}",
+			[]Expression{Symbol("if"),
+				[]Expression{Symbol("<"), Symbol("x"), 0},
+				0, Symbol("x")},
+		},
 	}
 
 	for _, tt := range tests {

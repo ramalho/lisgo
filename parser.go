@@ -7,6 +7,9 @@ import (
 	"strings"
 )
 
+var brackets = map[string]string{"(": ")", "[": "]", "{": "}"}
+var closeBrackets = ")]}"
+
 func parse(source string) (Expression, error) {
 	tokens := tokenize(source)
 	return readFromTokens(&tokens)
@@ -22,19 +25,19 @@ func readFromTokens(tokens *[]string) (Expression, error) {
 	}
 	token := (*tokens)[0]
 	*tokens = (*tokens)[1:]
-	if token == "(" {
+	if closeBracket, ok := brackets[token]; ok {
 		var L []Expression
-		for (*tokens)[0] != ")" {
+		for (*tokens)[0] != closeBracket {
 			exp, err := readFromTokens(tokens)
 			if err != nil {
 				return nil, err
 			}
 			L = append(L, exp)
 		}
-		*tokens = (*tokens)[1:] // pop off ')'
+		*tokens = (*tokens)[1:] // pop off closeBracket
 		return L, nil
-	} else if token == ")" {
-		return nil, errors.New("unexpected )")
+	} else if strings.Contains(token, closeBrackets) {
+		return nil, fmt.Errorf("unexpected %q", token)
 	} else {
 		return atom(token), nil
 	}
